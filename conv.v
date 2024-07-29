@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+// relu는 여기 추가하는게 좋을것 같다.
 module conv(
     input   wire                            clk_i,
     input   wire                            rst_n,
@@ -103,7 +103,7 @@ module conv(
         .O      (t[8])
     );
 
-    always @(posedge clk_i or negedge rst_n) begin
+    always @(posedge clk_i) begin
         if (!rst_n) begin
             r_o <= 0;
         end

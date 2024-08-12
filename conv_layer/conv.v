@@ -1,3 +1,6 @@
+
+
+
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
@@ -20,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // relu는 여기 추가하는게 좋을것 같다.
-module conv(
+module conv(                                           
     input   wire                            clk_i,
     input   wire                            rst_n,
 
@@ -47,60 +50,60 @@ module conv(
     output  reg     signed      [63:0]      r_o
     );
 
-    wire    signed  [31:0]      t [8:0];
+    wire    signed  [15:0]      t [8:0];
 
-    mul mul_t0  (
-        .A      (k_0),
-        .B      (w_0),
-        .O      (t[0])
+    booth_multiplier mul_t0  (
+        .M      (k_0),
+        .Q      (w_0),
+        .result      (t[0])
     );
 
-    mul mul_t1  (
-        .A      (k_1),
-        .B      (w_1),
-        .O      (t[1])
+    booth_multiplier mul_t1  (
+        .M      (k_1),
+        .Q      (w_1),
+        .result      (t[1])
     );
 
-    mul mul_t2  (
-        .A      (k_2),
-        .B      (w_2),
-        .O      (t[2])
+    booth_multiplier mul_t2  (
+        .M      (k_2),
+        .Q      (w_2),
+        .result      (t[2])
     );
 
-    mul mul_t3  (
-        .A      (k_3),
-        .B      (w_3),
-        .O      (t[3])
+    booth_multiplier mul_t3  (
+        .M      (k_3),
+        .Q      (w_3),
+        .result      (t[3])
     );
 
-    mul mul_t4  (
-        .A      (k_4),
-        .B      (w_4),
-        .O      (t[4])
+    booth_multiplier mul_t4  (
+        .M      (k_4),
+        .Q      (w_4),
+        .result      (t[4])
     );
 
-    mul mul_t5  (
-        .A      (k_5),
-        .B      (w_5),
-        .O      (t[5])
+    booth_multiplier mul_t5  (
+        .M      (k_5),
+        .Q      (w_5),
+        .result      (t[5])
     );
 
-    mul mul_t6  (
-        .A      (k_6),
-        .B      (w_6),
-        .O      (t[6])
+    booth_multiplier mul_t6  (
+        .M      (k_6),
+        .Q      (w_6),
+        .result      (t[6])
     );
 
-    mul mul_t7  (
-        .A      (k_7),
-        .B      (w_7),
-        .O      (t[7])
+    booth_multiplier mul_t7  (
+        .M      (k_7),
+        .Q      (w_7),
+        .result      (t[7])
     );
 
-    mul mul_t8  (
-        .A      (k_8),
-        .B      (w_8),
-        .O      (t[8])
+    booth_multiplier mul_t8  (
+        .M     (k_8),
+        .Q      (w_8),
+        .result      (t[8])
     );
 
     always @(posedge clk_i) begin

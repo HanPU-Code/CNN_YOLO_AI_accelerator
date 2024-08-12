@@ -1,55 +1,64 @@
-module conv_layer #(
-    CONV_SIZE = 3 * 3,
-    INPUT_CHANNEL = 3,
-    NUM_OF_FILTERS = 16
-)
+module conv_layer 
 (
-    input   wire                                                                 clk_i,
-    input   wire                                                                 rst_n,
-    input   wire  [CONV_SIZE * INPUT_CHANNEL * NUM_OF_FILTERS * 8 - 1:0]         in_data,
-    input   wire  [CONV_SIZE * INPUT_CHANNEL * NUM_OF_FILTERS * 8 - 1:0]         in_weight,
-    output  reg   [NUM_OF_FILTERS * 8 - 1:0]                                     out_data
+    input   wire                         clk_i,
+    input   wire                         rst_n,
+    input   wire  [27 * 8 - 1:0]         in_data,
+    output  reg   [64 * 16 - 1:0]        out_data   // 원래 64bit
 );
 
-    localparam DATA_WIDTH = 8;
-    localparam CHUNK_SIZE = CONV_SIZE * INPUT_CHANNEL * DATA_WIDTH;
-    localparam NUM_CHUNKS = NUM_OF_FILTERS;
+    wire [64:0]  c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15;
 
-    wire [CHUNK_SIZE - 1:0] sliced_in_data[0:NUM_CHUNKS - 1];
-    wire [CHUNK_SIZE - 1:0] sliced_in_weight[0:NUM_CHUNKS - 1];
-    wire [DATA_WIDTH - 1:0] result[0:NUM_CHUNKS - 1];
+    sys_array #(       
+        .K0       (72'h01_01_01_01_01_01_01_01_01),
+        .K1       (72'h01_01_01_01_01_01_01_01_01),
+        .K2       (72'h01_01_01_01_01_01_01_01_01),
+        .K3       (72'h01_01_01_01_01_01_01_01_01),
+        .K4       (72'h01_01_01_01_01_01_01_01_01),
+        .K5       (72'h01_01_01_01_01_01_01_01_01),
+        .K6       (72'h01_01_01_01_01_01_01_01_01),
+        .K7       (72'h01_01_01_01_01_01_01_01_01),
+        .K8       (72'h01_01_01_01_01_01_01_01_01),
+        .K9       (72'h01_01_01_01_01_01_01_01_01),
+        .K10      (72'h01_01_01_01_01_01_01_01_01),
+        .K11      (72'h01_01_01_01_01_01_01_01_01),
+        .K12      (72'h01_01_01_01_01_01_01_01_01),
+        .K13      (72'h01_01_01_01_01_01_01_01_01),
+        .K14      (72'h01_01_01_01_01_01_01_01_01),
+        .K15      (72'h01_01_01_01_01_01_01_01_01)
+    )
+    sys_array_0 (
+            .clk_i          (clk_i),
+            .rst_n          (rst_n),
 
-    genvar i;
-    generate
-        for (i = 0; i < NUM_CHUNKS; i = i + 1) begin : gen_chunks
-            assign sliced_in_data[i] = in_data[(i+1)*CHUNK_SIZE-1:i*CHUNK_SIZE];
-            assign sliced_in_weight[i] = in_weight[(i+1)*CHUNK_SIZE-1:i*CHUNK_SIZE];
-        end
-    endgenerate
+            .a0             (in_data),
 
-    genvar j;
-    generate
-        for (j = 0; j < 16; j = j + 1) begin : conv_op
-            conv_RGB conv_RGB_dut (
-                    .clk_i          (clk_i),
-                    .rst_n          (rst_n),
-                    .rgb_data_i     (sliced_in_data[j]),
-                    .rgb_weight_i   (sliced_in_weight[j]),
-                    .result_o       (result[j])
-            );
-        end
-    endgenerate
+            .c0             (c0 ),
+            .c1             (c1 ),
+            .c2             (c2 ),
+            .c3             (c3 ),
+            .c4             (c4 ),
+            .c5             (c5 ),
+            .c6             (c6 ),
+            .c7             (c7 ),
+            .c8             (c8 ),
+            .c9             (c9 ),
+            .c10            (c10),
+            .c11            (c11),
+            .c12            (c12),
+            .c13            (c13),
+            .c14            (c14),
+            .c15            (c15)
+    );
 
     always @(posedge clk_i) begin
         if (!rst_n) begin
             out_data <= 0;
         end
         else begin
-            out_data <= {result[0], result[1], result[2], result[3],
-                         result[4], result[5], result[6], result[7],
-                         result[8], result[9], result[10], result[11],
-                         result[12], result[13], result[14], result[15]
-                        };
+            out_data <= {c0, c1, c2, c3,
+                         c4, c5, c6, c7,
+                         c8, c9, c10, c11,
+                         c12, c13, c14, c15};
         end
     end
 

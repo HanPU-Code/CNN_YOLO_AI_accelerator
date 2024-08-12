@@ -22,7 +22,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-// relu는 여기 추가하는게 좋을것 같다.
+// IO 문제 발생
 module conv(                                           
     input   wire                            clk_i,
     input   wire                            rst_n,
@@ -47,10 +47,12 @@ module conv(
     input   wire    signed      [7:0]       w_7,
     input   wire    signed      [7:0]       w_8,
 
-    output  reg     signed      [63:0]      r_o
+    output  wire    signed      [63:0]      r_o
     );
 
     wire    signed  [15:0]      t [8:0];
+
+    reg     signed  [63:0]      r;
 
     booth_multiplier mul_t0  (
         .M      (k_0),
@@ -108,11 +110,16 @@ module conv(
 
     always @(posedge clk_i) begin
         if (!rst_n) begin
-            r_o <= 0;
+            r <= 0;
         end
         else begin
-            r_o <= t[0] + t[1] + t[2] + t[3] + t[4] + t[5] + t[6] + t[7] + t[8];
+            r <= t[0] + t[1] + t[2] + t[3] + t[4] + t[5] + t[6] + t[7] + t[8];
         end
     end
+
+    relu relu_dut (
+        .a      (r),
+        .b      (r_o)
+    );
     
 endmodule

@@ -46,7 +46,7 @@ module sys_array #(
     input   wire                    rst_n,
     input   wire  [27 * 8 - 1:0]    a0,
 
-    output  wire  [63:0]            c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15
+    output  wire  [7:0]            c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15
     );
 
     wire   [27 * 8 - 1:0]   a01, a12, a23, a34, a45, a56, a67, a78, a89, a910, a1011, a1112, a1213, a1314, a1415;

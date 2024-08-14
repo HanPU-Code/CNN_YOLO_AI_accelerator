@@ -33,8 +33,7 @@ module PE #(  // 3x3x3 conv op
     input   wire    [27 * 8 - 1:0]      in_b,   // 3x3  fixed (before rgb_weight_i)
 
     output  reg     [27 * 8 - 1:0]      out_a,
-    output  reg     [27 * 8 - 1:0]      out_b,
-    output  reg     [63:0]              out_c
+    output  reg     [7:0]              out_c
 );
 
     wire    [71:0]  r_data_i;     // 3x3 size with 8bit per 1 size
@@ -45,9 +44,9 @@ module PE #(  // 3x3x3 conv op
     wire    [71:0]  g_weight_i;
     wire    [71:0]  b_weight_i;
 
-    wire    [63:0]  r_data_o;
-    wire    [63:0]  g_data_o;
-    wire    [63:0]  b_data_o;
+    wire    [7:0]  r_data_o;
+    wire    [7:0]  g_data_o;
+    wire    [7:0]  b_data_o;
 
     assign  r_data_i = in_a[215:144];
     assign  g_data_i = in_a[143:72];
@@ -60,7 +59,6 @@ module PE #(  // 3x3x3 conv op
     always @(posedge clk_i) begin
         if (!rst_n) begin
             out_a <= 0;
-            out_b <= 0;
             out_c <= 0;
         end
         else begin

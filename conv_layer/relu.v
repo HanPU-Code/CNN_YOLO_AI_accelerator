@@ -20,14 +20,15 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module relu ( a, b);
+module relu ( a, b_o);
 
 
 input signed [63:0] a;
 
-output signed [63:0] b;
+output signed [7:0] b_o;
 
-
+wire   [63:0]   b;
 assign b = (a<=0) ? 0 : a;
+assign b_o = {b[63],b[6:0]};
 
 endmodule

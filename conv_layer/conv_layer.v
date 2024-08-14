@@ -2,11 +2,9 @@ module conv_layer
 (
     input   wire                         clk_i,
     input   wire                         rst_n,
-    input   wire  [27 * 8 - 1:0]         in_data,
-    output  reg   [64 * 16 - 1:0]        out_data   // 원래 64bit
+    input   wire   [27 * 8 - 1:0]         in_data,
+    output  wire   [16 * 8 - 1:0]        c   // 원래 64bit
 );
-
-    wire [64:0]  c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15;
 
     sys_array #(       
         .K0       (72'h01_01_01_01_01_01_01_01_01),
@@ -32,34 +30,22 @@ module conv_layer
 
             .a0             (in_data),
 
-            .c0             (c0 ),
-            .c1             (c1 ),
-            .c2             (c2 ),
-            .c3             (c3 ),
-            .c4             (c4 ),
-            .c5             (c5 ),
-            .c6             (c6 ),
-            .c7             (c7 ),
-            .c8             (c8 ),
-            .c9             (c9 ),
-            .c10            (c10),
-            .c11            (c11),
-            .c12            (c12),
-            .c13            (c13),
-            .c14            (c14),
-            .c15            (c15)
+            .c0             (c[127:120]),
+            .c1             (c[119:112]),
+            .c2             (c[111:104]),
+            .c3             (c[103:96]),
+            .c4             (c[95:88]),
+            .c5             (c[87:80]),
+            .c6             (c[79:72]),
+            .c7             (c[71:64]),
+            .c8             (c[63:56]),
+            .c9             (c[55:48]),
+            .c10            (c[47:40]),
+            .c11            (c[39:32]),
+            .c12            (c[31:24]),
+            .c13            (c[23:16]),
+            .c14            (c[15:8]),
+            .c15            (c[7:0])
     );
-
-    always @(posedge clk_i) begin
-        if (!rst_n) begin
-            out_data <= 0;
-        end
-        else begin
-            out_data <= {c0, c1, c2, c3,
-                         c4, c5, c6, c7,
-                         c8, c9, c10, c11,
-                         c12, c13, c14, c15};
-        end
-    end
 
 endmodule

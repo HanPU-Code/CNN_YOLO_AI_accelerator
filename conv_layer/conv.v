@@ -47,7 +47,7 @@ module conv(
     input   wire    signed      [7:0]       w_7,
     input   wire    signed      [7:0]       w_8,
 
-    output  wire    signed      [63:0]      r_o
+    output  wire    signed      [7:0]      r_o
     );
 
     wire    signed  [15:0]      t [8:0];
@@ -119,7 +119,7 @@ module conv(
 
     relu relu_dut (
         .a      (r),
-        .b      (r_o)
+        .b_o      (r_o)
     );
     
 endmodule

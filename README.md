@@ -22,6 +22,7 @@ Main tool: Xilinx Vivado, Vitis AI
   - That isn't too hard but we didn't get parameter txt files written by INT8 type.
   - OpenCV, TensorFlow, Numpy, etc... will be used.
   - https://github.com/ValentinFigue/TinyYOLOv3-PyTorch : developed the model from their work.
+  - https://github.com/openvinotoolkit/open_model_zoo   : converted weight file from their work.
 
 ### Design Conv layer.
   - The components of Conv layer is "Convolution", "BatchNorm", and "Leaky ReLU".

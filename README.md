@@ -21,6 +21,7 @@ Main tool: Xilinx Vivado, Vitis AI
 ### Coding reference code in python. (all parameters are called in txt files.)
   - That isn't too hard but we didn't get parameter txt files written by INT8 type.
   - OpenCV, TensorFlow, Numpy, etc... will be used.
+  - https://github.com/ValentinFigue/TinyYOLOv3-PyTorch?tab=readme-ov-file : developed the model from their work.
 
 ### Design Conv layer.
   - The components of Conv layer is "Convolution", "BatchNorm", and "Leaky ReLU".

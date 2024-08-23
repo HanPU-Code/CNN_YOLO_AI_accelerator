@@ -2,9 +2,8 @@ module counter (
                 input clk,
                 input reset,
                 input en,
-
-                output reg [3:0] count,
-                output reg [8:0] cycle
+                output reg [1:0] cycle,
+                output reg [8:0] count
 );
 
 
@@ -13,13 +12,23 @@ module counter (
 always @(posedge clk or posedge reset ) begin 
 
     if(reset)begin
-        cycle<=0;
         count<=0;
+        cycle<=0;
     end
 
     else begin
         if(en) begin
+
+
+            if(cycle>2'd3)
+                cycle<=0;
+
+            if(count>9'd415)
+                count<=0;
+        
             count<=count+1'b1;
+            cycle<=cycle+1'b1;
+            
         end
 
         else begin
@@ -28,10 +37,6 @@ always @(posedge clk or posedge reset ) begin
         end
     
 
-        if(count==4'd7) begin
-            count<=0;
-            cycle<=cycle+1'b1;
-        end
 
 
 		end

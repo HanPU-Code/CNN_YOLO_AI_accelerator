@@ -14,10 +14,13 @@ module padding (
                 output reg [3343:0] B_padded,
 					 
 				output reg p_signal
+					 
 
 
 
 );
+
+
 
 always @(posedge clk or posedge reset) begin // for reset
 
@@ -25,7 +28,8 @@ always @(posedge clk or posedge reset) begin // for reset
         R_padded <= 0;
         G_padded <= 0;
         B_padded <= 0;
-		p_signal <= 0;
+        p_signal <= 0;
+
 
 	end
 
@@ -37,20 +41,20 @@ always @(posedge clk or posedge reset) begin // for reset
                 R_padded <= 0;
                 G_padded <= 0;
                 B_padded <= 0;
-                p_signal <= 1'b0;
-                p_signal = 1'b1;
-
+                p_signal <= p_signal + 1'b1;
             end
+
 
             else begin
                 R_padded <= {8'b0, R_input, 8'b0};
                 G_padded <= {8'b0, G_input, 8'b0};
                 B_padded <= {8'b0, B_input, 8'b0};
-                p_signal <= 1'b0;
-                p_signal = 1'b1;
+                p_signal <= p_signal + 1'b1;
+
             end
 
             
+				
         end
 
     end

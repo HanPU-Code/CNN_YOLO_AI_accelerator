@@ -1,6 +1,28 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2024/08/26 22:15:04
+// Design Name: 
+// Module Name: padding
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 module padding (
                 input clk,
-                input reset,
+                input rst_n,
                 input en,
                 input [8:0] count,
 
@@ -22,44 +44,31 @@ module padding (
 
 
 
-always @(posedge clk or posedge reset) begin // for reset
-
-    if(reset) begin
+always @(posedge clk) begin // for reset
+    if(!rst_n) begin
         R_padded <= 0;
         G_padded <= 0;
         B_padded <= 0;
-        p_signal <= 0;
-
-
+        p_signal <= 1;
 	end
-
 	else begin
-
         if(en) begin
-
             if(count==9'd0 || count==9'd415)  begin
                 R_padded <= 0;
                 G_padded <= 0;
                 B_padded <= 0;
-                p_signal <= p_signal + 1'b1;
+                p_signal <= 1;
             end
-
-
             else begin
                 R_padded <= {8'b0, R_input, 8'b0};
                 G_padded <= {8'b0, G_input, 8'b0};
                 B_padded <= {8'b0, B_input, 8'b0};
-                p_signal <= p_signal + 1'b1;
-
+                p_signal <= 1;
             end
-
-            
-				
         end
-
     end
-
 end
     
 endmodule
+
 

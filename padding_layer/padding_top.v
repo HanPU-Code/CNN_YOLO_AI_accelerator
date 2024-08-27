@@ -1,6 +1,28 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2024/08/26 22:13:17
+// Design Name: 
+// Module Name: padding_top
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 module padding_top (
                 input clk,
-                input reset,
+                input rst_n,
                 input en,
 
                 input [3327:0] R_input,
@@ -36,7 +58,7 @@ wire [8:0] count;
 
 padding padding(
                 .clk(clk),
-                .reset(reset),
+                .rst_n(rst_n),
                 .en(en),
                 .count(count),
                 .p_signal(p_signal),
@@ -51,7 +73,7 @@ padding padding(
  
 padding_reg padding_reg (
                 .clk(clk),
-                .reset(reset),
+                .rst_n(rst_n),
                 .en(en),
                 .p_signal(p_signal),
 

@@ -1,9 +1,31 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 2024/08/26 22:39:02
+// Design Name: 
+// Module Name: tb_padding_top
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 `timescale 1ns/1ps
 
 module tb_padding_top ();
 
     reg clk;
-    reg reset;
+    reg rst_n;
     reg en;
 
     reg [3327:0] R_input;
@@ -26,7 +48,7 @@ module tb_padding_top ();
 
     padding_top padding_top(
                 .clk(clk),
-                .reset(reset),
+                .rst_n(rst_n),
                 .en(en),
 
                 .R_input(R_input),
@@ -54,12 +76,16 @@ module tb_padding_top ();
     initial begin
 
         clk = 0;
-        reset = 0;
+        rst_n = 1;
         en = 0;
 
         
-        reset = 1; #10
-        reset = 0; 
+        rst_n = 0; #10
+        rst_n = 1; 
+
+        R_input = 3328'd1; //
+        G_input = 3328'd1;
+        B_input = 3328'd1;
         
         #15
         

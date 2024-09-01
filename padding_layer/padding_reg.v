@@ -21,260 +21,155 @@
 
 // fsm
 module padding_reg (
-                input clk,
-                input rst_n,
-                input en,
-                input p_signal,
+    input clk,
+    input reset,
+    input en,
 
-                input [3343:0] R_padded,
-                input [3343:0] G_padded,
-                input [3343:0] B_padded,
+    input [3343:0] R_padded,
+    input [3343:0] G_padded,
+    input [3343:0] B_padded,
 
-                output reg [3343:0] R_row0, //418x8=3344
-                output reg [3343:0] G_row0,
-                output reg [3343:0] B_row0,
-                 
-                output reg [3343:0] R_row1, //418x8=3344
-                output reg [3343:0] G_row1,
-                output reg [3343:0] B_row1,
-                
-                output reg [3343:0] R_row2, //418x8=3344
-                output reg [3343:0] G_row2,
-                output reg [3343:0] B_row2,
-                output reg [8:0] count
-
-);
+    output reg [3343:0] R_row0, //418x8=3344
+    output reg [3343:0] G_row0,
+    output reg [3343:0] B_row0,
+     
+    output reg [3343:0] R_row1, //418x8=3344
+    output reg [3343:0] G_row1,
+    output reg [3343:0] B_row1,
     
+    output reg [3343:0] R_row2, //418x8=3344
+    output reg [3343:0] G_row2,
+    output reg [3343:0] B_row2,
+    output reg [8:0] count
+);
 
-reg [1:0] present_state, next_state;
-reg [1:0] ctrl;
+reg [2:0] present_state, next_state;
+reg [1:0] ctrl, wait_a;
 
-/*
-parameter S0=2'd0;
-parameter S1=2'd1;
-parameter S2=2'd2;
-parameter S3=2'd3;
-*/
-localparam IDLE = 2'b00;
-localparam S1   = 2'b01;
-localparam S2   = 2'b11;
-localparam S3   = 2'b10;
+localparam IDLE = 3'd0;
+localparam S1   = 3'd1;
+localparam S2   = 3'd2;
+localparam S3   = 3'd3;
+localparam WAIT = 3'd4;
 
 always @(posedge clk) begin 
-    if(!rst_n) begin
+    if(reset) begin
         present_state <= IDLE;
+        wait_a <= 0;  // Reset `wait_a` on reset
     end
     else begin
         present_state <= next_state;
+        
     end
 end
 
-/*
-always @(*) begin //next state
-    if(en) begin
-        case(present_state)
-            S0  :if(en) //reset state
-                    next_state <= S1;
-                else
-                    next_state <= S0;
-
-            S1  :if(p_signal)
-                    next_state <= S2;
-                else
-                    next_state <= S1;
-
-            S2  :if(p_signal)
-                    next_state <= S3;
-                else
-                    next_state <= S2;
-
-            S3  :if(p_signal)
-                    next_state <= S1;
-                else
-                    next_state <= S3;
-        endcase
-    end
-end
-*/
-
-    always @(*) begin
-        case (present_state)
-            IDLE: begin
-                if (en) begin
-                    next_state = S1;
-                end
-                else begin
-                    next_state = IDLE;
-                end
-            end
-            S1: begin
-                if (ctrl == 1) begin
-                    next_state = S2;
-                end
-                else begin
-                    next_state = S1;
-                end
-            end
-            S2: begin
-                if (ctrl == 2) begin
-                    next_state = S3;
-                end
-                else begin
-                    next_state = S2;
-                end
-            end
-            S3: begin
-                if (ctrl == 3) begin
-                    next_state = IDLE;
-                end
-                else begin
-                    next_state = S3;
-                end
-            end
-            default: begin
+always @(*) begin
+    case (present_state)
+        IDLE: begin
+            if (en) begin
+                next_state = WAIT;
+            end else begin
                 next_state = IDLE;
             end
-            // DONE signal 만들어야할 듯.
-        endcase
-    end
-
-/*
-always @(state) begin               //processing
-    
-    case(state)
-        
-        S0  :begin
-                R_row0 <= 0;
-                G_row0 <= 0;
-                B_row0 <= 0;
-                count  <= 0;
+        end
+        S1: begin
+            if (ctrl == 1) begin
+                next_state = S2;
+            end else begin
+                next_state = S1;
             end
-        
-        S1  :begin
-                R_row0 <= R_padded;
-                G_row0 <= G_padded;
-                B_row0 <= B_padded;
-                count  <= count+1'b1;
+        end
+        S2: begin
+            if (ctrl == 2) begin
+                next_state = S3;
+            end else begin
+                next_state = S2;
             end
-
-        S2  :begin
-                R_row1 <= R_padded;
-                G_row1 <= G_padded;
-                B_row1 <= B_padded;
-                count  <= count+1'b1;
+        end
+        S3: begin
+            if (ctrl == 3) begin
+                next_state = WAIT; // Return to WAIT state after completing S3
+            end else begin
+                next_state = S3;
             end
-        
-        S3  :begin
-                R_row2 <= R_padded;
-                G_row2 <= G_padded;
-                B_row2 <= B_padded;
-                count  <= count+1'b1;
-            end
-
+        end
+        WAIT: begin
+            if(wait_a == 2'd2)
+                next_state = S1;  // Move to S1 after wait period
+            else
+                next_state = WAIT;  // Stay in WAIT state
+        end
+        default: begin
+            next_state = IDLE;
+        end
     endcase
-    
-	 if(count==9'd416)
-		count<=0;
-
-
 end
-*/
 
-    always @(posedge clk) begin
-        if (!rst_n) begin
-            R_row0 <= 0;
-            G_row0 <= 0;
-            B_row0 <= 0;
-            R_row1 <= 0;
-            G_row1 <= 0;
-            B_row1 <= 0;
-            R_row2 <= 0;
-            G_row2 <= 0;
-            B_row2 <= 0;
-            count  <= 0;
-            ctrl   <= 0;
+always @(posedge clk) begin
+    case(present_state)
+        IDLE: begin
+            R_row0 = 3343'dz;
+            G_row0 = 3343'dz;
+            B_row0 = 3343'dz;
+            R_row1 = 3343'dz;
+            G_row1 = 3343'dz;
+            B_row1 = 3343'dz;
+            R_row2 = 3343'dz;
+            G_row2 = 3343'dz;
+            B_row2 = 3343'dz;
+
+            count  = 0;
+            ctrl   = 2'd1;
         end
-        else begin
-            case (present_state)
-                IDLE: begin
-                    R_row0 <= 0;
-                    G_row0 <= 0;
-                    B_row0 <= 0;
-                    R_row1 <= 0;
-                    G_row1 <= 0;
-                    B_row1 <= 0;
-                    R_row2 <= 0;
-                    G_row2 <= 0;
-                    B_row2 <= 0;
-                    count  <= 0;
-                    ctrl   <= 0;
-                end 
-                S1: begin
-                    R_row0 <= R_padded;
-                    G_row0 <= G_padded;
-                    B_row0 <= B_padded;
-                    R_row1 <= 0;
-                    G_row1 <= 0;
-                    B_row1 <= 0;
-                    R_row2 <= 0;
-                    G_row2 <= 0;
-                    B_row2 <= 0;
-                    // count  <= count + 1'b1;
-                    if (count == 9'd416) begin
-                        count <= 0;
-                        ctrl  <= ctrl + 1;  // 1
-                    end
-                    else begin
-                        count <= count + 1;
-                    end
-                end
-                S2: begin
-                    R_row0 <= 0;
-                    G_row0 <= 0;
-                    B_row0 <= 0;
-                    R_row1 <= R_padded;
-                    G_row1 <= G_padded;
-                    B_row1 <= B_padded;
-                    R_row2 <= 0;
-                    G_row2 <= 0;
-                    B_row2 <= 0;
-                    count  <= count + 1'b1;
-                    if (count == 9'd416) begin
-                        count <= 0;
-                        ctrl  <= ctrl + 1;  // 2
-                    end
-                end
-                S3: begin
-                    R_row0 <= 0;
-                    G_row0 <= 0;
-                    B_row0 <= 0;
-                    R_row1 <= 0;
-                    G_row1 <= 0;
-                    B_row1 <= 0;
-                    R_row2 <= R_padded;
-                    G_row2 <= G_padded;
-                    B_row2 <= B_padded;
-                    count  <= count + 1'b1;
-                    if (count == 9'd416) begin
-                        count <= 0;
-                        ctrl  <= ctrl + 1;
-                    end
-                end
-                default: begin
-                    R_row0 <= 0;
-                    G_row0 <= 0;
-                    B_row0 <= 0;
-                    R_row1 <= 0;
-                    G_row1 <= 0;
-                    B_row1 <= 0;
-                    R_row2 <= 0;
-                    G_row2 <= 0;
-                    B_row2 <= 0;
-                    count  <= 0;
-                    ctrl   <= 0;
-                end
-            endcase
+        
+        S1: begin
+            R_row0 = R_padded;
+            G_row0 = G_padded;
+            B_row0 = B_padded;
+            
+            count = count + 1;
+            if (count == 9'd416)
+                count = 0;
+            
+            ctrl   = 2'd2;
         end
-    end
+
+        S2: begin
+            R_row1 = R_padded;
+            G_row1 = G_padded;
+            B_row1 = B_padded;
+
+            count = count + 1;
+            if (count == 9'd416)
+                count = 0;
+            
+            ctrl   = 2'd3;
+        end
+        
+        S3: begin
+            R_row2 = R_padded;
+            G_row2 = G_padded;
+            B_row2 = B_padded;
+
+            count = count + 1;
+            if (count == 9'd416)
+                count = 0;
+            
+            ctrl   = 2'd1;
+            wait_a = 0;
+        end
+
+        WAIT: begin
+            
+            wait_a = wait_a + 1'b1  ;
+            count = count + 1;
+            if (count == 9'd416)
+                count = 0;
+            
+
+
+        end
+    endcase
+end
 
 endmodule

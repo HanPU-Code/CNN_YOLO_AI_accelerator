@@ -25,30 +25,24 @@
 module tb_padding_top ();
 
     reg clk;
-    reg rst_n;
+    reg reset;
     reg en;
-
     reg [3327:0] R_input;
     reg [3327:0] G_input;
     reg [3327:0] B_input;
-    
     wire [3343:0] R_row0; //418x8=3344
     wire [3343:0] G_row0;
     wire [3343:0] B_row0;
-
     wire [3343:0] R_row1; //418x8=3344
     wire [3343:0] G_row1;
     wire [3343:0] B_row1;
-
     wire [3343:0] R_row2; //418x8=3344
     wire [3343:0] G_row2;
     wire [3343:0] B_row2;
-
-
-
+    
     padding_top padding_top(
                 .clk(clk),
-                .rst_n(rst_n),
+                .reset(reset),
                 .en(en),
 
                 .R_input(R_input),
@@ -76,12 +70,12 @@ module tb_padding_top ();
     initial begin
 
         clk = 0;
-        rst_n = 1;
+        reset = 0;
         en = 0;
 
         
-        rst_n = 0; #10
-        rst_n = 1; 
+        reset = 1; #10
+        reset = 0; 
 
         R_input = 3328'd1; //
         G_input = 3328'd1;

@@ -22,7 +22,7 @@
 
 module padding_top (
                 input clk,
-                input rst_n,
+                input reset,
                 input en,
 
                 input [3327:0] R_input,
@@ -50,7 +50,7 @@ wire [3343:0] R_padded;
 wire [3343:0] G_padded;
 wire [3343:0] B_padded;
 
-wire p_signal;
+
 wire [8:0] count;
 
 
@@ -58,10 +58,9 @@ wire [8:0] count;
 
 padding padding(
                 .clk(clk),
-                .rst_n(rst_n),
+                .reset(reset),
                 .en(en),
                 .count(count),
-                .p_signal(p_signal),
                 .R_input(R_input),
                 .G_input(G_input),
                 .B_input(B_input),
@@ -73,9 +72,9 @@ padding padding(
  
 padding_reg padding_reg (
                 .clk(clk),
-                .rst_n(rst_n),
+                .reset(reset),
                 .en(en),
-                .p_signal(p_signal),
+
 
                 .R_padded(R_padded),
                 .G_padded(G_padded),

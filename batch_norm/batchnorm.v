@@ -1,37 +1,43 @@
-module batchnorm #(parameter WIDTH = 8, parameter FRACTION_BITS = 8)(
-    input wire signed [WIDTH-1:0] x,       // 입력값
-    input wire signed [WIDTH-1:0] mean,    // 평균값
-    input wire signed [WIDTH-1:0] var,     // 분산값
-    input wire signed [WIDTH-1:0] epsilon, // 작은 상수 (epsilon)
-    output wire signed [WIDTH-1:0] result  // 결과값
+module batchnorm (
+    input					 clk,
+	input					 i_start,
+	input wire signed [31:0] in_data,       // 입력값
+    input wire signed [31:0] mean,    // 평균값
+    input wire signed [31:0] root_var,     // 분산값
+    output wire signed [31:0] result,  // 결과값
+	output					  o_complete,
+	output					  o_overflow
 );
+	parameter	EPSILON	=	32'h0000_0001;
 
     // 중간 결과 저장용 변수
-    wire signed [WIDTH-1:0] x_minus_mean;
-    wire signed [WIDTH-1:0] var_plus_epsilon;
-    wire signed [WIDTH-1:0] sqrt_var_plus_epsilon;
-    wire signed [WIDTH*2-1:0] numerator; // (x - mean)
-    wire signed [WIDTH*2-1:0] denominator; // sqrt(var + epsilon)
+	wire signed [31:0]	minus_mean	;
+    wire signed [31:0] x_minus_mean;
+    reg signed [31:0] denominator; // sqrt(var + epsilon)
+	assign	minus_mean	=	{(~mean[31]),mean[30:0]}	;
 
-    // x - mean 계산
-    assign x_minus_mean = x - mean;
+	qadd	QADD
+	(
+	.a		(in_data),
+	.b		(minus_mean),
+	.c		(x_minus_mean)
+	);
+	
+	always@(x_minus_mean or root_var) begin
+		if(root_var==0) denominator	=	EPSILON	;
+		else			denominator	=	root_var;
+	end
 
-    // var + epsilon 계산
-    assign var_plus_epsilon = var + epsilon;
-
-    // sqrt(var + epsilon)를 고정소수점으로 근사 계산 (정확한 sqrt 계산은 복잡하므로 근사치 사용)
-    // 예를 들어, 간단한 뉴턴-랩슨 방법이나 테일러 급수를 사용한 근사 계산
-    // 여기서는 간단하게 직접 비트 시프트를 사용하여 계산한다고 가정
-    assign sqrt_var_plus_epsilon = var_plus_epsilon >> (FRACTION_BITS/2);  // 간단한 sqrt 근사 (비트 시프트)
-
-    // 분자 (numerator) = x - mean
-    assign numerator = x_minus_mean;
-
-    // 분모 (denominator) = sqrt(var + epsilon)
-    assign denominator = sqrt_var_plus_epsilon;
-
-    // (x - mean) / sqrt(var + epsilon) 계산 (고정소수점 연산에 따른 스케일 조정 포함)
-    assign result = (numerator << FRACTION_BITS) / denominator;
+	qdiv		QDIV
+	(
+	 .i_clk		(clk),
+	 .i_start	(i_start),
+	 .i_dividend(x_minus_mean),
+	 .i_divisor (denominator),
+	 .o_quotient_out(result),
+	 .o_complete(o_complete),
+	 .o_overflow(o_overflow)
+	);
 
 endmodule
 

@@ -24,6 +24,7 @@ module padding_reg (
     input clk,
     input reset,
     input en,
+    input wait_en,
 
     input [3343:0] R_padded,
     input [3343:0] G_padded,
@@ -39,12 +40,11 @@ module padding_reg (
     
     output reg [3343:0] R_row2, //418x8=3344
     output reg [3343:0] G_row2,
-    output reg [3343:0] B_row2,
-    output reg [8:0] count
+    output reg [3343:0] B_row2
 );
 
 reg [2:0] present_state, next_state;
-reg [1:0] ctrl, wait_a;
+reg [1:0] ctrl;
 
 localparam IDLE = 3'd0;
 localparam S1   = 3'd1;
@@ -55,7 +55,7 @@ localparam WAIT = 3'd4;
 always @(posedge clk) begin 
     if(reset) begin
         present_state <= IDLE;
-        wait_a <= 0;  // Reset `wait_a` on reset
+        
     end
     else begin
         present_state <= next_state;
@@ -67,7 +67,8 @@ always @(*) begin
     case (present_state)
         IDLE: begin
             if (en) begin
-                next_state = WAIT;
+                next_state = S1;
+
             end else begin
                 next_state = IDLE;
             end
@@ -94,10 +95,13 @@ always @(*) begin
             end
         end
         WAIT: begin
-            if(wait_a == 2'd2)
-                next_state = S1;  // Move to S1 after wait period
-            else
-                next_state = WAIT;  // Stay in WAIT state
+            if (wait_en) begin
+                next_state = S1;
+
+            end else begin
+                next_state = WAIT;
+            end
+
         end
         default: begin
             next_state = IDLE;
@@ -105,7 +109,7 @@ always @(*) begin
     endcase
 end
 
-always @(posedge clk) begin
+always @(posedge clk) begin // * 하면 출력 안나옴
     case(present_state)
         IDLE: begin
             R_row0 = 3343'dz;
@@ -118,7 +122,6 @@ always @(posedge clk) begin
             G_row2 = 3343'dz;
             B_row2 = 3343'dz;
 
-            count  = 0;
             ctrl   = 2'd1;
         end
         
@@ -127,10 +130,6 @@ always @(posedge clk) begin
             G_row0 = G_padded;
             B_row0 = B_padded;
             
-            count = count + 1;
-            if (count == 9'd416)
-                count = 0;
-            
             ctrl   = 2'd2;
         end
 
@@ -138,10 +137,6 @@ always @(posedge clk) begin
             R_row1 = R_padded;
             G_row1 = G_padded;
             B_row1 = B_padded;
-
-            count = count + 1;
-            if (count == 9'd416)
-                count = 0;
             
             ctrl   = 2'd3;
         end
@@ -151,21 +146,23 @@ always @(posedge clk) begin
             G_row2 = G_padded;
             B_row2 = B_padded;
 
-            count = count + 1;
-            if (count == 9'd416)
-                count = 0;
-            
             ctrl   = 2'd1;
-            wait_a = 0;
+
         end
 
         WAIT: begin
-            
-            wait_a = wait_a + 1'b1  ;
-            count = count + 1;
-            if (count == 9'd416)
-                count = 0;
-            
+
+            R_row0 = R_row0;
+            G_row0 = G_row0;
+            B_row0 = B_row0;
+
+            R_row1 = R_row1;
+            G_row1 = G_row1;
+            B_row1 = B_row1;
+
+            R_row2 = R_row2;
+            G_row2 = G_row2;
+            B_row2 = B_row2;
 
 
         end

@@ -30,6 +30,9 @@ module tb_padding_top ();
     reg [3327:0] R_input;
     reg [3327:0] G_input;
     reg [3327:0] B_input;
+    reg wait_en;
+    reg [8:0] count;
+
     wire [3343:0] R_row0; //418x8=3344
     wire [3343:0] G_row0;
     wire [3343:0] B_row0;
@@ -44,6 +47,8 @@ module tb_padding_top ();
                 .clk(clk),
                 .reset(reset),
                 .en(en),
+                .wait_en(wait_en),
+                .count(count),
 
                 .R_input(R_input),
                 .G_input(G_input),
@@ -72,48 +77,52 @@ module tb_padding_top ();
         clk = 0;
         reset = 0;
         en = 0;
+        reset = 1; 
+        wait_en = 0;
+        #10
 
-        
-        reset = 1; #10
         reset = 0; 
-
+        #5
         R_input = 3328'd1; //
         G_input = 3328'd1;
         B_input = 3328'd1;
-        
-        #15
-        
         en = 1;
+        count = 9'd0;
 
-        
+        #10
+        count = 9'd0;
         R_input = 3328'd1; //
         G_input = 3328'd1;
         B_input = 3328'd1;
 
         #10
                 
-        R_input = 3328'd2; //0000_1111
+        count = 9'd1;
+        R_input = 3328'd2; //
         G_input = 3328'd2;
         B_input = 3328'd2;
     
         #10
-
+        count = 9'd2;
         R_input = 3328'd3; //0000_1111_0000
         G_input = 3328'd3;
         B_input = 3328'd3;
 
         #10
+        count = 9'd3;
         R_input = 3328'd7; //0000_1111_0000
         G_input = 3328'd7;
         B_input = 3328'd7;
+        wait_en = 1;
 
         #10
-
+        count = 9'd4;
         R_input = 3328'd240; //0000_1111_0000
         G_input = 3328'd240;
         B_input = 3328'd240;
 
         #10
+        count = 9'd5;
         R_input = 3328'd7; //0000_1111_0000
         G_input = 3328'd7;
         B_input = 3328'd7;

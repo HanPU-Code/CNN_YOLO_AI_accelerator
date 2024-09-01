@@ -46,7 +46,7 @@ always @(*) begin // for reset
 	else begin
         if(en)
         begin
-            if(count==9'd0 || count==9'd415)
+            if(count==9'd0 || count==9'd417)
             begin
                 R_padded <= 0;
                 G_padded <= 0;

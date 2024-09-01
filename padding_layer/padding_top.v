@@ -24,6 +24,9 @@ module padding_top (
                 input clk,
                 input reset,
                 input en,
+                input wait_en,
+
+                input [8:0] count,
 
                 input [3327:0] R_input,
                 input [3327:0] G_input,
@@ -51,8 +54,6 @@ wire [3343:0] G_padded;
 wire [3343:0] B_padded;
 
 
-wire [8:0] count;
-
 
 
 
@@ -74,6 +75,8 @@ padding_reg padding_reg (
                 .clk(clk),
                 .reset(reset),
                 .en(en),
+                .wait_en(wait_en),
+                
 
 
                 .R_padded(R_padded),
@@ -90,8 +93,7 @@ padding_reg padding_reg (
                 
                 .R_row2(R_row2), //418x8=3344
                 .G_row2(G_row2),
-                .B_row2(B_row2),
-                .count(count)
+                .B_row2(B_row2)
 
 );
    

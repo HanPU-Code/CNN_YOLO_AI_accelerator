@@ -27,6 +27,9 @@ module padding_top (
                 input wait_en,
 
                 input [8:0] count,
+                input imgDataValid,
+
+                output intr,
 
                 input [3327:0] R_input,
                 input [3327:0] G_input,
@@ -76,6 +79,9 @@ padding_reg padding_reg (
                 .reset(reset),
                 .en(en),
                 .wait_en(wait_en),
+                .imgDataValid(imgDataValid),
+
+                .intr(intr),
                 
 
 

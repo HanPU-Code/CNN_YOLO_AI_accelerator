@@ -25,10 +25,13 @@ module padding_reg (
     input reset,
     input en,
     input wait_en,
+    input imgDataValid,
 
     input [3343:0] R_padded,
     input [3343:0] G_padded,
     input [3343:0] B_padded,
+
+    output reg intr,
 
     output reg [3343:0] R_row0, //418x8=3344
     output reg [3343:0] G_row0,
@@ -66,7 +69,7 @@ end
 always @(*) begin
     case (present_state)
         IDLE: begin
-            if (en) begin
+            if (en == 1 && imgDataValid == 1) begin
                 next_state = S1;
 
             end else begin
@@ -74,21 +77,21 @@ always @(*) begin
             end
         end
         S1: begin
-            if (ctrl == 1) begin
+            if (ctrl == 1 && imgDataValid == 1) begin
                 next_state = S2;
             end else begin
                 next_state = S1;
             end
         end
         S2: begin
-            if (ctrl == 2) begin
+            if (ctrl == 2 && imgDataValid == 1) begin
                 next_state = S3;
             end else begin
                 next_state = S2;
             end
         end
         S3: begin
-            if (ctrl == 3) begin
+            if (ctrl == 3 && imgDataValid == 1) begin
                 next_state = WAIT; // Return to WAIT state after completing S3
             end else begin
                 next_state = S3;
@@ -123,6 +126,7 @@ always @(posedge clk) begin // * 하면 출력 안나옴
             B_row2 = 3343'dz;
 
             ctrl   = 2'd1;
+            intr   = 0;
         end
         
         S1: begin
@@ -131,6 +135,7 @@ always @(posedge clk) begin // * 하면 출력 안나옴
             B_row0 = B_padded;
             
             ctrl   = 2'd2;
+            intr   = 0;
         end
 
         S2: begin
@@ -139,6 +144,7 @@ always @(posedge clk) begin // * 하면 출력 안나옴
             B_row1 = B_padded;
             
             ctrl   = 2'd3;
+            intr   = 0;
         end
         
         S3: begin
@@ -147,6 +153,7 @@ always @(posedge clk) begin // * 하면 출력 안나옴
             B_row2 = B_padded;
 
             ctrl   = 2'd1;
+            intr   = 0;
 
         end
 
@@ -163,6 +170,8 @@ always @(posedge clk) begin // * 하면 출력 안나옴
             R_row2 = R_row2;
             G_row2 = G_row2;
             B_row2 = B_row2;
+
+            intr   = 1;
 
 
         end

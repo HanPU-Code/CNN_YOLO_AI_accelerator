@@ -32,6 +32,9 @@ module tb_padding_top ();
     reg [3327:0] B_input;
     reg wait_en;
     reg [8:0] count;
+    reg imgDataValid;
+
+    wire intr;
 
     wire [3343:0] R_row0; //418x8=3344
     wire [3343:0] G_row0;
@@ -44,11 +47,14 @@ module tb_padding_top ();
     wire [3343:0] B_row2;
     
     padding_top padding_top(
-                .clk(clk),
-                .reset(reset),
-                .en(en),
+                .clk    (clk),
+                .reset  (reset),
+                .en     (en),
                 .wait_en(wait_en),
-                .count(count),
+                .count  (count),
+                .imgDataValid(imgDataValid),
+
+                .intr(intr),
 
                 .R_input(R_input),
                 .G_input(G_input),
@@ -79,6 +85,7 @@ module tb_padding_top ();
         en = 0;
         reset = 1; 
         wait_en = 0;
+        imgDataValid = 1;
         #10
 
         reset = 0; 
@@ -113,16 +120,21 @@ module tb_padding_top ();
         R_input = 3328'd7; //0000_1111_0000
         G_input = 3328'd7;
         B_input = 3328'd7;
-        wait_en = 1;
+        //wait_en = 1;
 
         #10
         count = 9'd4;
+
+        #10
+        count = 9'd5;
+        wait_en = 1;
         R_input = 3328'd240; //0000_1111_0000
         G_input = 3328'd240;
         B_input = 3328'd240;
 
         #10
-        count = 9'd5;
+        count = 9'd6;
+        wait_en = 0;
         R_input = 3328'd7; //0000_1111_0000
         G_input = 3328'd7;
         B_input = 3328'd7;

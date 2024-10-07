@@ -1,19 +1,20 @@
 `timescale 1ns/1ps
-`define headerSize 1080 
-`define imageSize 416*416*3  // Each pixel now has 3 bytes (R, G, B)
+`define headerSize 54  // 표준 BMP 헤더 크기
+`define width 416
+`define height 416
+`define imageSize `width*`height*3  // 각 픽셀은 3바이트(R, G, B)
 
-module tb();
+module tb_top();
 
     reg clk;
     reg reset;
     reg [7:0] imgDataR, imgDataG, imgDataB;
-    integer file, file1, file2, i;
+    integer file, file1, file2, i, j;
     reg imgDataValid;
     integer sentSize;
-    // We have to write code here about output signal to testbench...
-    wire intr;  // This is control signal interrupt.
-    wire outDataValid;
-    integer receivedData = 0;
+    integer rowSize, paddingSize;
+    reg [7:0] paddingByte;
+    reg [7:0] imgDataArray[0:`height-1][0:`width-1][0:2];  // [행][열][색상]
 
     initial begin
         clk = 1'b0;
@@ -26,77 +27,72 @@ module tb();
         reset = 0;
         sentSize = 0;
         imgDataValid = 0;
+        rowSize = `width * 3;
+        paddingSize = (4 - (rowSize % 4)) % 4;
         #100;
         reset = 1;
         #100;
-        file = $fopen("image_416x416_rgb.bmp", "rb");  // 파일명에 맞게 수정
+        file = $fopen("C:/Users/hanyu/Desktop/dog.bmp", "rb");  // 파일명에 맞게 수정
         file1 = $fopen("lined_image_416x416_rgb.bmp", "wb");
         file2 = $fopen("imageData.h", "w");
 
-        // Copy header
+        if (file == 0 || file1 == 0 || file2 == 0) begin
+            $display("파일을 열지 못했습니다.");
+            $stop;
+        end
+
+        // 헤더 읽기 및 복사
         for(i = 0; i < `headerSize; i = i + 1) begin
-            $fscanf(file, "%c", imgDataR);  // 헤더는 imgDataR로 처리
-            $fwrite(file1, "%c", imgDataR);
+            $fscanf(file, "%c", imgDataR);  // 헤더 바이트 읽기
+            $fwrite(file1, "%c", imgDataR); // 헤더 바이트를 출력 파일에 쓰기
         end
 
-        // Process image data (RGB)
-        for(i = 0; i < 4 * 416 * 3; i = i + 3) begin
-            @(posedge clk);
-            $fscanf(file, "%c%c%c", imgDataR, imgDataG, imgDataB);  // R, G, B 읽기
-            $fwrite(file2, "%0d,%0d,%0d,", imgDataR, imgDataG, imgDataB);
-            imgDataValid <= 1'b1;
+        // 픽셀 데이터를 배열에 저장
+        for(i = 0; i < `height; i = i + 1) begin
+            // 한 행의 픽셀 읽기
+            for(j = 0; j < `width; j = j + 1) begin
+                $fscanf(file, "%c%c%c", imgDataArray[i][j][0], imgDataArray[i][j][1], imgDataArray[i][j][2]);  // B, G, R 순서
+            end
+            // 패딩 바이트 읽기
+            for(j = 0; j < paddingSize; j = j + 1) begin
+                $fscanf(file, "%c", paddingByte);
+            end
         end
 
-        sentSize = 4 * 416 * 3;
-        @(posedge clk);
-        imgDataValid <= 1'b0;
+        // 파일 닫기
+        $fclose(file);
 
-        while(sentSize < `imageSize) begin
-            @(posedge intr);
-            for(i = 0; i < 416 * 3; i = i + 3) begin
+        // 상단 행부터 픽셀 데이터를 처리
+        for(i = 0; i < `height; i = i + 1) begin
+            for(j = 0; j < `width; j = j + 1) begin
                 @(posedge clk);
-                $fscanf(file, "%c%c%c", imgDataR, imgDataG, imgDataB);  // R, G, B 읽기
+                imgDataB = imgDataArray[`height - 1 - i][j][0];
+                imgDataG = imgDataArray[`height - 1 - i][j][1];
+                imgDataR = imgDataArray[`height - 1 - i][j][2];
                 $fwrite(file2, "%0d,%0d,%0d,", imgDataR, imgDataG, imgDataB);
-                imgDataValid <= 1'b1;
+                imgDataValid = 1'b1;
+                // 필요한 경우 픽셀 데이터를 처리하거나 저장
             end
             @(posedge clk);
-            imgDataValid <= 1'b0;
-            sentSize = sentSize + 416 * 3;
+            imgDataValid = 1'b0;
         end
 
-        @(posedge clk);
-        imgDataValid <= 1'b0;
-
-        // 패딩 처리 (필요시 0으로 채움)
-        @(posedge intr);
-        for(i = 0; i < 416 * 3; i = i + 3) begin
-            @(posedge clk);
-            imgDataR <= 0;
-            imgDataG <= 0;
-            imgDataB <= 0;
-            imgDataValid <= 1'b1;
-            $fwrite(file2, "%0d,%0d,%0d,", 0, 0, 0);
-        end
-        @(posedge clk);
-        imgDataValid <= 1'b0;
-
-        $fclose(file);
         $fclose(file2);
     end
 
-    always @(posedge clk) begin
-        if(outDataValid) begin
-            $fwrite(file1, "%c", outData);
-            receivedData = receivedData + 1;
-        end
-        if(receivedData == `imageSize) begin
-            $fclose(file1);
-            $stop;
-        end
-    end
+    // always @(posedge clk) begin
+    //     if(outDataValid) begin
+    //         $fwrite(file1, "%c", outData);
+    //         receivedData = receivedData + 1;
+    //     end
+    //     if(receivedData == `imageSize) begin
+    //         $fclose(file1);
+    //         $stop;
+    //     end
+    // end
 
-    top dut(
-        // our module
-    );
+    // top dut(
+    //     // our module
+    // );
 
 endmodule

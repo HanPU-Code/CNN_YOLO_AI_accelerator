@@ -16,6 +16,49 @@ module tb_top();
     reg [7:0] paddingByte;
     reg [7:0] imgDataArray[0:`height-1][0:`width-1][0:2];  // [행][열][색상]
 
+
+    reg padding_en;
+
+    wire [3343:0] R_row0;
+    wire [3343:0] G_row0;
+    wire [3343:0] B_row0;
+    wire [3343:0] R_row1;
+    wire [3343:0] G_row1;
+    wire [3343:0] B_row1;
+    wire [3343:0] R_row2;
+    wire [3343:0] G_row2;
+    wire [3343:0] B_row2;
+    
+    wire intr;
+
+    padding padding(
+                    .clk(clk),
+                    .reset(reset),
+                    .padding_en(padding_en),
+                    .imgDataValid(imgDataValid),
+
+                    .R_input(imgDataR),
+                    .G_input(imgDataG),
+                    .B_input(imgDataB),
+
+                    .intr(intr),
+
+                    .R_row0(R_row0), //418x8=3344
+                    .G_row0(G_row0),
+                    .B_row0(B_row0),
+
+                    .R_row1(R_row1), //418x8=3344
+                    .G_row1(G_row1),
+                    .B_row1(B_row1),
+
+                    .R_row2(R_row2), //418x8=3344
+                    .G_row2(G_row2),
+                    .B_row2(B_row2)
+
+    );
+
+   
+
     initial begin
         clk = 1'b0;
         forever begin
@@ -24,15 +67,17 @@ module tb_top();
     end
 
     initial begin
-        reset = 0;
+        reset = 1;
         sentSize = 0;
         imgDataValid = 0;
         rowSize = `width * 3;
         paddingSize = (4 - (rowSize % 4)) % 4;
+        padding_en = 0;
         #100;
-        reset = 1;
+        reset = 0;
+        padding_en = 1;
         #100;
-        file = $fopen("C:/Users/hanyu/Desktop/dog.bmp", "rb");  // 파일명에 맞게 수정
+        file = $fopen("D:/Han/Verilog_codes/top/dog.bmp", "rb");  // 파일명에 맞게 수정
         file1 = $fopen("lined_image_416x416_rgb.bmp", "wb");
         file2 = $fopen("imageData.h", "w");
 
